@@ -1,7 +1,9 @@
-let cart = [];
+// Initialize cart from localStorage
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 function addToCart(title, price) {
   cart.push({ title, price });
+  localStorage.setItem('cart', JSON.stringify(cart));
   updateCart();
 
   const button = event.target;
@@ -28,14 +30,14 @@ function updateCart() {
   cart.forEach((item, index) => {
     total += item.price;
     itemsHTML += `
-                    <div class="cart-item">
-                        <div>
-                            <strong>${item.title}</strong>
-                            <br>$${item.price}
-                        </div>
-                        <button onclick="removeFromCart(${index})" style="background: var(--rust); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer;">Remove</button>
-                    </div>
-                `;
+            <div class="cart-item">
+                <div>
+                    <strong>${item.title}</strong>
+                    <br>$${item.price}
+                </div>
+                <button onclick="removeFromCart(${index})" style="background: var(--rust); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer;">Remove</button>
+            </div>
+        `;
   });
 
   cartItems.innerHTML =
@@ -45,6 +47,7 @@ function updateCart() {
 
 function removeFromCart(index) {
   cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
   updateCart();
 }
 
@@ -58,8 +61,19 @@ function checkout() {
     alert('Your cart is empty!');
     return;
   }
-  alert('Thank you for your purchase! Total: $' + cart.reduce((sum, item) => sum + item.price, 0));
-  cart = [];
-  updateCart();
-  toggleCart();
+  // Redirect to checkout page
+  window.location.href = 'checkout.html';
 }
+
+// Wait for page to load before accessing elements
+document.addEventListener('DOMContentLoaded', function () {
+  // Close cart when clicking outside
+  document.getElementById('cartModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+      toggleCart();
+    }
+  });
+
+  // Load cart on page load
+  updateCart();
+});
